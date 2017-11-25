@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 300px;
+            height: 400px;
+            border: 1px solid #eeeeee;
+            margin: 50px auto;
+        }
+        .yuan{
+            width: 160px;
+            height: 160px;
+            border-radius:50% ;
+            margin: 30px auto;
+            position: relative;
+        }
+        .prev,.next{
+            width: 50px;
+            height: 25px;
+            background-color: #ffffff;
+            /*opacity: 0.7;*/
+            position: absolute;
+            top: 30px;
+            border-radius:25px 25px 0 0;
+            text-align: center;
+            line-height: 25px;
+            color: #ff4a50;
+        }
+        .next{
+            right: 10px;
+        }
+        .prev{
+            left: 10px;
+            /*background-size:contain ;*/
+        }
+        .play{
+            position: absolute;
+            margin-left: 55px;
+            bottom: 20px;
+            /*left: 0;*/
+            width: 40px;
+            height:50px ;
+            border-radius:25px;
+            background-color: #ffffff;
+            line-height: 50px;
+            padding-left: 10px;
+            font-size: 20px;
+            color: #62e4ff;
+            cursor: pointer;
+            /*border: 1px solid ;*/
+            /*border-bottom: 20px solid #ffffff;*/
+            /*border-left: 20px solid transparent;*/
+            /*border-right:20px solid transparent;*/
+        }
+        .des{
+            text-align: center;
+        }
+        .all-line{
+            width: 200px;
+            height: 4px;
+            background: #dddddd;
+            position: relative;
+            z-index: 0;
+        }
+        .ctrl{
+            width: 200px;
+            margin: 30px auto;
+            position: relative;
+            text-align: right;
+        }
+        .ctrl span{
+            font-size: 13px;
+        }
+
+        .now-lin{
+            width: 0;
+            height: 4px;
+            background: #398915;
+            position: absolute;
+            top:0;
+            left: 0;
+            z-index: 0;
+        }
+        .quan{
+            width: 15px;
+            height: 15px;
+            border-radius:50%;
+            background: red;
+            position: absolute;
+            top: -5px;
+            left:-4px;
+            z-index: 0;
+        }
+        .touming{
+            width: 200px;
+            height: 10px;
+            background: red;
+            position: relative;
+            top: 5px;
+            left: 0;
+            z-index: 5;
+            opacity: 0;
+        }
+        .ctrl-voluem{
+            width: 100px;
+            height: 3px;
+            background: #747474;
+            display: inline-block;
+        }
+        .now-voluem{
+            width: 50px;
+            height: 3px;
+            background: red;
+        }
+        .volume span:hover{
+            cursor: pointer;
+
+        }
+        .volume span{
+            border: 1px solid;
+            background: #a8d2e7;
+        }
+        .volume span:hover{
+            opacity: 0.8;
+        }
+        .z{
+           float: right;
+            margin-top: -50px;
+        }
+        .z div{
+            margin: 8px;
+        }
+        .z div:hover{
+            cursor: pointer;
+            color: #5CC2E5;
+        }
+    </style>
+</head>
+<body>
+<!--autoplay-->  <!--这个单词是是自动播放功能-->
+<audio ></audio>
+<div class="box">
+    <div class="yuan">
+         <div class="prev">↑♬</div>
+         <div class="next">↓♬</div>
+        <div class="play"><span>唱</span></div>
+    </div>
+    <!--歌曲名-->
+    <div class="des">
+        <span></span>
+    </div>
+    <!--进度条-->
+    <div class="ctrl">
+        <div class="touming">
+        </div>
+        <div class="all-line">
+            <div class="now-lin">
+            </div>
+            <div class="quan"></div>
+        </div>
+        <span>00:00/00:00</span>
+    </div>
+    <div class="volume">
+        <span>音量</span>
+        <div class="ctrl-voluem">
+            <div class="now-voluem"></div>
+        </div>
+    </div>
+    <div class="z">
+        <div class="shun" data-statu="false">顺序</div>
+        <div class="dan" data-statu="true">单曲</div>
+        <div class="sui" data-statu="flase">随机</div>
+    </div>
+</div>
+</body>
+<script>
+    var data=[
+
+
+        {
+                url:'http://dl.stream.qqmusic.qq.com/C400001zPXgE3Mq4Hm.m4a?vkey=C246DA06D17D0CD11DF5F54EC1D4C21E010BD6AD0E506C635B78273F5524988005BA5B1610BE36DC89D00442C051D3364ABE24DFA0D850BB&guid=8807485844&uin=0&fromtag=66',
+            singer:'花粥',
+            song:'遥不可及的你',
+            pic:'"http://7xavon.com1.z0.glb.clouddn.com/FispmeNfjQ5C-tAPWgE7t9BCeHI0"',
+        },
+
+
+
+    ];
+            //获取元素
+     var album=document.querySelector('.yuan'); //专辑封面
+     var des=document.querySelector('.des span'); //歌曲名字
+     var audio=document.querySelector('audio'); //
+     var play=document.querySelector('.play'); // 暂停播放
+     var symbol=document.querySelector('.play span'); //音乐符号
+     var prev=document.querySelector('.prev'); //上一曲
+     var next=document.querySelector('.next'); //下一曲
+     var playTimer=document.querySelector('.ctrl span'); //时间
+     var ctrl=document.querySelector('.ctrl'); //进度条宽度
+     var nowLin=document.querySelector('.now-lin'); //新进度条
+     var quan=document.querySelector('.quan'); //小圆点
+     var allLin=document.querySelector('.all-line'); //进度条
+     var touming=document.querySelector('.touming'); //进度条
+     var ctrlVolume=document.querySelector('.ctrl-voluem'); //音量进度条
+     var nowVolume=document.querySelector('.now-voluem'); //上音量进度条
+     var button=document.querySelector('.volume span'); //音量暂停
+     var sui=document.querySelector('.sui'); //音量暂停
+     var shun=document.querySelector('.shun'); //音量暂停
+     var dan=document.querySelector('.dan'); //音量暂停
+     var statusDiv=document.querySelectorAll('.z div'); //音量暂停
+
+//     for(var i=0;i<data.length;i++){
+//         audio.src=data[0].url;           //注意data【0】。url是个变量所以不加引号 还要加上src
+//                                         //audio.play(）就可以播放
+//         audio.play();
+//         str+=''
+//     }
+
+
+
+
+//        album.style.background='url('+data[0].pic+')';
+//        album.style.backgroundSize='contain';
+//        des.innerHTML=data[0].song+'---'+data[0].singer;  //注意加上下标注意js的写法注意获取的是带span标签的
+//
+//
+    //全局作用域中的播放
+//    audio.src=data[0].url;
+//    audio.play();
+    var timer=null;
+    var deg=0;
+    var index=0;
+   function init(){
+       audio.src=data[index].url;
+       des.innerHTML=data[index].singer+'---'+data[index].song;
+       album.style.background='url('+data[index].pic+')';
+       album.style.backgroundSize='contain';  //在不改变图片的形状下进行和容器打下适中配合
+
+       audio.play()
+       clearInterval(timer);          //把上一个定时器清除掉
+       timer=setInterval(function(){
+           deg++;
+           album.style.transform='rotate('+deg+'deg)'
+       },50);
+   }
+
+
+//    symbol.style.display='none';
+init();    //调用出函数
+   //封装暂停和播放
+
+         //这个不能封装到播放里面因为如果放到里面就会每次都清空timer所以放到全局作用域中
+    function playMusic(){
+        audio.play();
+        symbol.innerHTML='唱';
+        clearInterval(timer);          //把上一个定时器清除掉
+        timer=setInterval(function(){
+            deg++;
+            album.style.transform='rotate('+deg+'deg)'
+        },50);
+
+
+    }
+    function pauseMusic(){
+        audio.pause();
+        symbol.innerHTML='停';
+        clearInterval(timer)
+    }
+
+
+//点击播放或暂停
+    play.addEventListener('click',function(){
+
+        if(audio.paused){                  //.paused是检测是否播放 暂停播放为true
+           playMusic();
+        }else{
+          pauseMusic()
+
+        }
+
+    });
+
+    //封装上下曲
+    function npMusice(flag){
+        //首先要判断用户当前播放状态
+
+        if(checkStatusu()===0){
+            flag ? index-- : index++;
+            index=index<0?data.length-1:index;
+            index=index>data.length-1?0:index;
+
+        }else if(checkStatusu()===1){
+
+        }else if(checkStatusu()===2){
+          index=parseInt(Math.random()*data.length);  //算出歌曲的随机数
+        }
+
+//        flag ? index-- : index++;
+//        index=index<0?data.length-1:index;
+//        index=index>data.length-1?0:index;
+        init();
+        playMusic();
+        deg=0;
+    }
+
+    //        随机播放
+    parseInt(Math.random()*data.length);
+    function checkStatusu(){
+        for(var i=0;i<statusDiv.length;i++){
+            if(statusDiv[i].dataset.statu==='true'){
+                return i;
+            }
+        }
+    }
+    //      console.log(checkStatusu())输出返回的值是。z  div中的第几个
+
+
+    //        如何修改 播放状态 点击div把当前那个div status的值改为true其它两个改为false
+
+
+    for(var i=0;i<statusDiv.length;i++){   //给每个div绑定点击事件
+        statusDiv[i].addEventListener('click',function(){
+//                  先全部改成false再把当前的改成为true
+            for( var j=0;j<statusDiv.length;j++){
+                statusDiv[j].dataset.statu=false;
+            }
+            this.dataset.statu=true;
+            if(checkStatusu()===0){
+                alert('您调到了顺序播放');
+                shun.style.color='#a8d2e7';
+                dan.style.color='#000000';
+                sui.style.color='#000000'
+            }else if(checkStatusu()===1){
+                alert('您调到了单曲播放');
+                dan.style.color='#a8d2e7';
+                sui.style.color='#000000';
+                shun.style.color='#000000';
+            }else if(checkStatusu()===2){
+                alert('您调到了随机播放');
+                sui.style.color='#a8d2e7'
+                dan.style.color='#000000';
+                shun.style.color='#000000';
+            }
+
+        })
+    }
+
+
+   //上一曲
+    prev.addEventListener('click',function(){
+////        index++;                             //这种只能下一曲不能上一曲
+////        index=index>data.length-1?0:index;   //这是一种三元运算符
+//        index--;                           //先让index等于-1接下来再去判断
+//        index=index<0?data.length-1:index; //
+//         init();
+//        deg=0;                        //角度值归零就可以
+//            playMusic()
+
+
+        npMusice(true)
+    });
+//下一曲
+    next.addEventListener('click',function(){
+//        deg=0;
+//        index++;
+//        index=index>data.length-1?0:index;
+//        init();
+//        playMusic()
+        npMusice(false)
+
+
+
+
+    });
+
+
+
+
+
+
+//时间
+    //获取播放时间总时长
+//    canplay（）这个事件是当音乐准备完成的时候触发这个事件
+    //buration在当音乐准备完成后执行获取总时长
+    audio.addEventListener('canplay',function(){
+
+        function filterTimer(m){     //把过滤的时间封装成了函数
+            return(m=m<10?'0'+m:m)
+        }
+         var m=Math.floor(audio.duration/60);
+         var   s= Math.floor(audio.duration%60);
+
+//         m=m<10?'0'+m:m;          //当分数小于10的时候前面加零如果大于就等于分数
+//         s=m<10?'0'+s:s;          //当秒数小于10的时候前面加零如果大于就等于秒数
+
+        var sunTimer=filterTimer(m)+':'+filterTimer(s);
+        playTimer.innerHTML='00:00/'+sunTimer;
+        //上面是获取总时间
+
+        //下面是获取当前时间
+        //timeupdate当音乐时间发生改变所触发的这个事件
+        //audio.currentTime是获取当前时长得和timeupdate配合使用才有效果
+
+
+
+
+
+        audio.addEventListener('timeupdate', function () {
+
+              var mm=Math.floor(audio.currentTime/60);   //计算当前时长除以60得的分钟数然后在地板函数
+            var ss=Math.floor(audio.currentTime%60);   //计算当前时长于60得秒数地板函数得整数算出秒数
+//            mm=mm<10?'0'+mm:mm;
+//            ss=ss<10?'0'+ss:ss;
+            //                 var nowTimer=mm+':'+ss;
+
+
+                 var nowTimer= filterTimer(mm)+':'+filterTimer(ss);
+            //这个是调用出来的函数拼接和上面变量名拼接分开用一个     var声明
+//            console.log(nowTimer);
+            playTimer.innerHTML=nowTimer+'/'+sunTimer;
+
+
+            //进度条处理
+//            如何计算进度条一秒钟走多远
+//            当前应该走的距离=当前时长/总时长*容器宽度 当前时长=audio.currentTime/audio.duration*容器总宽度
+            var juli=audio.currentTime/audio.duration*200;
+           nowLin.style.width=juli+'px';
+            quan.style.left=(juli-10)+'px';
+
+//播放完毕后的处理
+//            console.log(audio.ended);//audio.ended是媒体是否播放完毕它输出是false
+            //这个得写在当音乐播放时间发生改变就会触发的事件里因为放在timeupdate中会不停的判断false
+            if(audio.ended){   //弹了那么多false最后弹出了一个ture
+//                playMusic()
+//                deg=0;
+//                index++;
+//                index=index>data.length-1?0:index;
+//                init();
+//                playMusic()
+                npMusice(false)
+            }
+
+            });
+// 下面是处理点哪到哪
+               touming.addEventListener('click',function(e){
+//            console.log(e.offsetX)                   //e.offsetX表示根据容器的位置
+//            quan.style.left= e.offsetX/200*audio.duration+'px';
+//            console.log(e.offsetX/200*audio.duration);
+           nowLin.style.width= e.offsetX+'px';    //点击容器后进度条等于对于容器的鼠标位置
+            quan.style.left= e.offsetX+'px';      //点击容器后小圆圈等于对于容器的鼠标位置
+           audio.currentTime=e.offsetX/200*audio.duration;  //更改当前播放时间和你点击的时间一致
+            console.log(audio.currentTime);
+//            playMusic()
+        });
+
+    // 音量处理
+        ctrlVolume.addEventListener('click',function(e){
+
+            nowVolume.style.width=e.offsetX+'px';
+
+            audio.volume= e.offsetX/100;
+
+
+        });
+
+    nowVolume.style.width=(audio.volume*100)+'px';//一开始audio.volume默认是满音量1之后乘以容器总宽度等于实际px值
+//写在当音乐准备完成的时候触发的这个事件里canplay
+
+
+
+
+
+
+
+
+
+    });
+    //音量禁音
+    button.addEventListener('click',function(){
+//            <aduio muted></aduio>是被禁音的如果放到js中怎么写呢请看下面：
+        if(audio.muted != true) {
+            audio.muted = true; button.innerHTML='禁音';
+            nowVolume.style.width=0;
+//                console.log(audio.muted = true);
+        } else {
+            audio.muted = false;
+            nowVolume.style.width= audio.volume*100+'px';
+            button.innerHTML='音量';
+//                console.log(audio.muted = false)
+        }
+
+    })
+
+
+    //按下空格键播放和暂停  放到全局作用域下
+    //        keyup键盘抬起事件  e.keyCode是所有键盘 document指的是文档
+    document.addEventListener('keyup',function(e){
+//            console.log(e.keyCode);             //输出这个能看到每个按键的名字
+        if(e.keyCode===32){
+            if(audio.paused){
+                playMusic()
+            }else{
+                pauseMusic()
+            }
+        }
+    });
+
+</script>
+
+</html>
